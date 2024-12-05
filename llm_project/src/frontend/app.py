@@ -1,11 +1,39 @@
 from llm_project.src.models.model_lo import GroqChat
 import streamlit as st
+import os
+from pathlib import Path
 
 
 class ChatInterface:
     def __init__(self):
         self.llm = GroqChat()
+        # Obtener la ruta base del proyecto
+        self.base_path = Path(__file__).parent.parent.parent
+        self.img_path = os.path.join(self.base_path, "img", "Genievailogo.png")
+        # Añadir rutas para los avatares
+        self.user_avatar = os.path.join(self.base_path, "img", "user_avatar.png")
+        self.assistant_avatar = os.path.join(self.base_path, "img", "assistant_avatar.png")
         
+        self.content_templates = {
+            "Blog": """Genera un artículo de blog sobre {tema}. 
+                      Debe incluir: título, introducción, desarrollo y conclusión.""",
+            "Twitter": """Crea un hilo de Twitter sobre {tema}. 
+                         Máximo 280 caracteres por tweet. Usa un tono informal y directo.""",
+            "Instagram": """Genera una publicación de Instagram sobre {tema}. 
+                          Incluye emojis relevantes y hashtags populares.""",
+            "LinkedIn": """Crea una publicación profesional para LinkedIn sobre {tema}.
+                          Utiliza un tono formal y profesional, incluye llamadas a la acción,
+                          menciona aspectos relevantes para la red profesional y añade 3-5 hashtags estratégicos.
+                          Máximo 3000 caracteres.""",
+            "SEO": """Crea un artículo optimizado para SEO sobre {tema}. 
+                     Incluye palabras clave, meta descripción y estructura H1, H2, H3.""",
+            "Infantil": """Explica {tema} de forma divertida y simple para niños. 
+                         Usa analogías y ejemplos cotidianos."""
+        }
+        self.main_bg_color = "#0f0f0f"
+        self.secondary_bg_color = "#1f1f1f"
+        self.text_color = "#ffffff"
+
     def initialize_session_state(self):
         if 'messages' not in st.session_state:
             st.session_state.messages = []
@@ -14,19 +42,129 @@ class ChatInterface:
         if 'max_length' not in st.session_state:
             st.session_state.max_length = 256
 
-    def get_response(self, prompt: str) -> str:
+    def get_response(self, prompt: str, tema: str, platform: str) -> str:
         try:
-            formatted_prompt = f"""
-            Usuario: {prompt}
-            Asistente: """
+            template = self.content_templates[platform]
+            formatted_prompt = template.format(tema=tema)
             
-            return self.llm(formatted_prompt).strip()
+            system_prompt = """Eres un experto en creación de contenido para diferentes 
+            plataformas. Tu tarea es generar contenido optimizado y adaptado para la 
+            plataforma especificada. IMPORTANTE: Siempre debes responder en español,
+            independientemente del idioma del input."""
+            
+            full_prompt = f"""
+            {system_prompt}
+            
+            PLATAFORMA: {platform}
+            SOLICITUD: {formatted_prompt}
+            CONTEXTO ADICIONAL: {prompt}
+            
+            RECUERDA: Tu respuesta debe ser SIEMPRE en español.
+            """
+            
+            return self.llm.invoke(full_prompt).strip()
         except Exception as e:
             st.error(f"Error al generar respuesta: {str(e)}")
             return "Lo siento, hubo un error al procesar tu solicitud."
 
     def run(self):
-        st.title("Chat con Ollama")
+        custom_css = f"""
+        .main-container {{
+            background-color: {self.main_bg_color};
+        }}
+        """
+        
+        # Crear layout con imagen y título en la misma línea
+        col1, col2 = st.columns([1, 3])
+        
+        # Imagen en la columna izquierda
+        with col1:
+            st.image(self.img_path, use_container_width=True)
+        
+        # Título y subtítulo en la columna derecha
+        with col2:
+            st.title("GenievAI")
+            st.subheader("Generador de Contenido Multiplataforma")
+        
+        # Selector de tema
+        theme = st.sidebar.radio(
+            "Tema",
+            ["Claro", "Oscuro"]
+        )
+        
+        # Definir colores según el tema
+        if theme == "Oscuro":
+            main_bg_color = "#261E2F"
+            sidebar_bg_color = "#271827"
+            header_bg_color = "#261E2F"
+            text_color = "#ffffff"
+        else:
+            main_bg_color = "#ECE8EF"
+            sidebar_bg_color = "#bcaedc"
+            header_bg_color = "#ECE8EF"
+            text_color = "#000000"
+        
+        # Aplicar los colores
+        st.markdown(f"""
+            <style>
+                /* Color de fondo principal */
+                [data-testid="stAppViewContainer"] {{
+                    background-color: {main_bg_color};
+                }}
+                
+                /* Color de la barra lateral */
+                [data-testid="stSidebar"] {{
+                    background-color: {sidebar_bg_color};
+                }}
+                
+                /* Color del header */
+                [data-testid="stHeader"] {{
+                    background-color: {header_bg_color};
+                }}
+                
+                /* Color del texto */
+                .stMarkdown, .stText, p, h1, h2, h3 {{
+                    color: {text_color} !important;
+                }}
+                
+                /* Color de los botones */
+                .stButton button {{
+                    background-color: {sidebar_bg_color};
+                    color: {text_color};
+                }}
+                
+                /* Color de los inputs */
+                .stTextInput input {{
+                    color: {text_color};
+                }}
+                
+                /* Color de los selectbox */
+                .stSelectbox select {{
+                    color: {text_color};
+                }}
+            </style>
+        """, unsafe_allow_html=True)
+        
+        # Añadir selector de plataforma
+        platform = st.sidebar.selectbox(
+            "Selecciona la plataforma",
+            ["Blog", "Twitter", "Instagram", "LinkedIn", "SEO", "Infantil"]
+        )
+        
+        # Añadir campo de entrada para el tema
+        tema = st.sidebar.text_input(
+            "Escribe el tema seleccionado",
+            key="tema_input",
+        )
+        
+        # Estilo para hacer el texto blanco en el input
+        st.markdown("""
+            <style>
+                [data-testid="stTextInput"] input {
+                    color: white !important;
+                }
+            </style>
+        """, unsafe_allow_html=True)
         
         self.initialize_session_state()
         
@@ -45,20 +183,36 @@ class ChatInterface:
                 st.rerun()
 
         for message in st.session_state.messages:
-            with st.chat_message(message["role"]):
+            with st.chat_message(message["role"], avatar=self.user_avatar if message["role"] == "user" else self.assistant_avatar):
                 st.markdown(message["content"])
 
         if prompt := st.chat_input("Escribe tu mensaje aquí..."):
             st.session_state.messages.append({"role": "user", "content": prompt})
-            with st.chat_message("user"):
+            with st.chat_message("user", avatar=self.user_avatar):
                 st.markdown(prompt)
 
-            with st.chat_message("assistant"):
+            with st.chat_message("assistant", avatar=self.assistant_avatar):
                 with st.spinner("Pensando..."):
-                    response = self.get_response(prompt)
+                    response = self.get_response(prompt, tema, platform)
                     st.markdown(response)
             st.session_state.messages.append(
                 {"role": "assistant", "content": response})
+
+        # Añadir opciones de exportacion
+        if st.sidebar.button("Exportar contenido"):
+            # Lógica para exportar el contenido generado
+            pass
+        
+        # Añadir preview del contenido
+        if st.sidebar.checkbox("Mostrar vista previa"):
+            # Lógica para mostrar preview según la plataforma
+            pass
+        
+        # Añadir métricas básicas
+        if 'response' in locals():
+            st.sidebar.markdown("### Métricas")
+            st.sidebar.text(f"Caracteres: {len(response)}")
+            st.sidebar.text(f"Palabras: {len(response.split())}")
 
 
 if __name__ == "__main__":
