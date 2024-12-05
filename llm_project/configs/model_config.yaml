@@ -1,0 +1,7 @@
+model:
+  name: "mixtral-8x7b-32768"
+  parameters:
+    temperature: 0.7
+    top_p: 0.9
+    max_tokens: 500
+    system_prompt: "Eres un asistente amigable y útil que siempre responde en español de manera clara y concisa."
