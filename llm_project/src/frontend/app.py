@@ -11,7 +11,7 @@ class ChatInterface:
         # Obtener la ruta base del proyecto
         self.base_path = Path(__file__).parent.parent.parent
         self.img_path = str(Path(self.base_path) / "img" / "Genievailogo.png")
-        self.slider_img_path = str(Path(self.base_path) / "img" / "Genievai.1.png")
+        self.slider_img_path = str(Path(self.base_path) / "img" / "Genievai.1-removebg-preview.png")
         # Añadir rutas para los avatares
         self.user_avatar = str(Path(self.base_path) / "img" / "user_avatar.png")
         self.assistant_avatar = str(Path(self.base_path) / "img" / "assistant_avatar.png")
