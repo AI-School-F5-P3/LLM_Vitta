@@ -1,6 +1,5 @@
 from llm_project.src.models.model_lo import GroqChat
 import streamlit as st
-import os
 from pathlib import Path
 from llm_project.src.frontend.styles import apply_theme_styles, apply_white_text_input
 
