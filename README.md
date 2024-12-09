@@ -1,5 +1,5 @@
 # GenievAI 🧞‍♂️
-![GenievAI Logo](img/Genievai.1.png)
+![GenievAI Logo](llm_project/img/Genievai.1.png)
 
 ## Acceso Rápido
 Puedes utilizar GenievAI directamente en la web:
