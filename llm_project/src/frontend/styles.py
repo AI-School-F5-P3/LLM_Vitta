@@ -1,5 +1,6 @@
 import streamlit as st
 
+
 def apply_theme_styles(theme, main_bg_color, sidebar_bg_color, header_bg_color, text_color):
     st.markdown(f"""
         <style>

@@ -76,22 +76,17 @@ class ChatInterface:
         }}
         """
         
-        # Crear layout con imagen y título en la misma línea
         col1, col2 = st.columns([1, 3])
         
-        # Imagen en la columna izquierda
         with col1:
             st.image(self.img_path, use_container_width=True)
         
-        # Título y subtítulo en la columna derecha
         with col2:
             st.title("GenievAI")
             st.subheader("Generador de Contenido Multiplataforma")
         
-        # Primero el logo en el sidebar
         st.sidebar.image(self.slider_img_path, use_container_width=True)
         
-        # Luego el selector de tema
         theme = st.sidebar.radio(
             "Tema",
             ["Claro", "Oscuro"]
@@ -109,17 +104,14 @@ class ChatInterface:
             header_bg_color = "#ECE8EF"
             text_color = "#000000"
         
-        # Aplicar estilos desde el módulo styles
         apply_theme_styles(theme, main_bg_color, sidebar_bg_color, header_bg_color, text_color)
         apply_white_text_input()
         
-        # Añadir selector de plataforma
         platform = st.sidebar.selectbox(
             "Selecciona la plataforma",
             ["Blog", "Twitter", "Instagram", "LinkedIn", "SEO", "Infantil"]
         )
         
-        # Añadir campo de entrada para el tema
         tema = st.sidebar.text_input(
             "Escribe el tema seleccionado",
             key="tema_input",

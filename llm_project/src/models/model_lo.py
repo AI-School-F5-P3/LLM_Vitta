@@ -1,6 +1,5 @@
 from langchain.llms.base import LLM
 from typing import Any, List, Optional, Dict
-from pydantic import PrivateAttr
 from .model_loader import GroqLoader
 from langchain_core.messages import HumanMessage
 from pathlib import Path

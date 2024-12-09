@@ -10,7 +10,6 @@ load_dotenv()
 class GroqLoader:
     def __init__(self, config_path: str = "configs/model_config.yaml"):
         try:
-            # Intentar diferentes rutas si la primera falla
             possible_paths = [
                 config_path,
                 str(Path(__file__).parent.parent.parent / config_path),
