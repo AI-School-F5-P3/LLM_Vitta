@@ -1,5 +1,6 @@
 import yaml
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 
@@ -7,18 +8,32 @@ load_dotenv()
 
 
 class GroqLoader:
-    def __init__(self, config_path: str = "llm_project/configs/model_config.yaml"):
+    def __init__(self, config_path: str = "configs/model_config.yaml"):
         try:
-            with open(config_path, "r") as file:
-                config = yaml.safe_load(file)
+            # Intentar diferentes rutas si la primera falla
+            possible_paths = [
+                config_path,
+                str(Path(__file__).parent.parent.parent / config_path),
+                str(Path.cwd() / config_path)
+            ]
+            
+            for path in possible_paths:
+                if os.path.exists(path):
+                    with open(path, "r") as file:
+                        config = yaml.safe_load(file)
+                        break
+            else:
+                paths_str = "\n".join(possible_paths)
+                raise FileNotFoundError(
+                    f"No se encontró el archivo en ninguna ruta:\n{paths_str}"
+                )
+            
             if not config or 'model' not in config:
                 raise ValueError("Configuración inválida")
             
             self.model_name = config['model']['name']
             self.parameters = config['model'].get('parameters', {})
             
-        except FileNotFoundError:
-            raise FileNotFoundError(f"No se encontró: {config_path}")
         except yaml.YAMLError:
             raise ValueError(f"Error en YAML: {config_path}")
 
@@ -27,7 +42,7 @@ class GroqLoader:
             print(f"Inicializando modelo {self.model_name}...")
             api_key = os.getenv('GROQ_API_KEY')
             if not api_key:
-                raise ValueError("GROQ_API_KEY no encontrada en variables de entorno")
+                raise ValueError("GROQ_API_KEY no encontrada")
                 
             self.model = ChatGroq(
                 groq_api_key=api_key,

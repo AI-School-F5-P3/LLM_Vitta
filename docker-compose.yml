@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  genievai:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+    volumes:
+      - ./llm_project:/app/LLM_Vitta/llm_project
+    restart: always

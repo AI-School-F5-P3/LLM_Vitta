@@ -1,34 +1,52 @@
 import streamlit as st
 
+def apply_theme_styles(theme, main_bg_color, sidebar_bg_color, header_bg_color, text_color):
+    st.markdown(f"""
+        <style>
+            /* Color de fondo principal */
+            [data-testid="stAppViewContainer"] {{
+                background-color: {main_bg_color};
+            }}
+            
+            /* Color de la barra lateral */
+            [data-testid="stSidebar"] {{
+                background-color: {sidebar_bg_color};
+            }}
+            
+            /* Color del header */
+            [data-testid="stHeader"] {{
+                background-color: {header_bg_color};
+            }}
+            
+            /* Color del texto */
+            .stMarkdown, .stText, p, h1, h2, h3 {{
+                color: {text_color} !important;
+            }}
+            
+            /* Color de los botones */
+            .stButton button {{
+                background-color: {sidebar_bg_color};
+                color: {text_color};
+            }}
+            
+            /* Color de los inputs */
+            .stTextInput input {{
+                color: {text_color};
+            }}
+            
+            /* Color de los selectbox */
+            .stSelectbox select {{
+                color: {text_color};
+            }}
+        </style>
+    """, unsafe_allow_html=True)
 
-def apply_custom_styles():
+
+def apply_white_text_input():
     st.markdown("""
         <style>
-        .stApp {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .stTextInput>div>div>input {
-            border-radius: 20px;
-        }
-        .stButton>button {
-            border-radius: 20px;
-            width: 100%;
-        }
-        .chat-message {
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            display: flex;
-            flex-direction: column;
-        }
-        .user-message {
-            background-color: #e6f3ff;
-            align-self: flex-end;
-        }
-        .bot-message {
-            background-color: #f0f0f0;
-            align-self: flex-start;
-        }
+            [data-testid="stTextInput"] input {
+                color: white !important;
+            }
         </style>
     """, unsafe_allow_html=True)

@@ -1,17 +1,21 @@
 from langchain.llms.base import LLM
 from typing import Any, List, Optional, Dict
-from pydantic import Field, PrivateAttr
+from pydantic import PrivateAttr
 from .model_loader import GroqLoader
 from langchain_core.messages import HumanMessage
+from pathlib import Path
 
 
 class GroqChat(LLM):
-    config_path: str = Field(default="llm_project/configs/model_config.yaml")
-    _model_loader: GroqLoader = PrivateAttr()
+    config_path: str = "configs/model_config.yaml"
+    model_loader: GroqLoader = None
 
     def __init__(self, **kwargs: Any):
         super().__init__(**kwargs)
-        self._model_loader = GroqLoader(self.config_path)
+        config_path = (
+            str(self.config_path) if isinstance(self.config_path, (str, Path)) else "configs/model_config.yaml"
+        )
+        self.model_loader = GroqLoader(config_path)
 
     @property
     def _llm_type(self) -> str:
@@ -24,7 +28,7 @@ class GroqChat(LLM):
         **kwargs: Any,
     ) -> str:
         try:
-            model = self._model_loader.get_model()
+            model = self.model_loader.get_model()
             messages = [HumanMessage(content=prompt)]
             response = model.invoke(messages)
             return response.content.strip()
@@ -35,6 +39,6 @@ class GroqChat(LLM):
     @property
     def _identifying_params(self) -> Dict[str, Any]:
         return {
-            "model_name": self._model_loader.model_name,
-            **self._model_loader.parameters
+            "model_name": self.model_loader.model_name,
+            **self.model_loader.parameters
         }

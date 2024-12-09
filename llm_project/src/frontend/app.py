@@ -2,6 +2,7 @@ from llm_project.src.models.model_lo import GroqChat
 import streamlit as st
 import os
 from pathlib import Path
+from llm_project.src.frontend.styles import apply_theme_styles, apply_white_text_input
 
 
 class ChatInterface:
@@ -9,10 +10,11 @@ class ChatInterface:
         self.llm = GroqChat()
         # Obtener la ruta base del proyecto
         self.base_path = Path(__file__).parent.parent.parent
-        self.img_path = os.path.join(self.base_path, "img", "Genievailogo.png")
+        self.img_path = str(Path(self.base_path) / "img" / "Genievailogo.png")
+        self.slider_img_path = str(Path(self.base_path) / "img" / "Genievai.1.png")
         # Añadir rutas para los avatares
-        self.user_avatar = os.path.join(self.base_path, "img", "user_avatar.png")
-        self.assistant_avatar = os.path.join(self.base_path, "img", "assistant_avatar.png")
+        self.user_avatar = str(Path(self.base_path) / "img" / "user_avatar.png")
+        self.assistant_avatar = str(Path(self.base_path) / "img" / "assistant_avatar.png")
         
         self.content_templates = {
             "Blog": """Genera un artículo de blog sobre {tema}. 
@@ -86,7 +88,10 @@ class ChatInterface:
             st.title("GenievAI")
             st.subheader("Generador de Contenido Multiplataforma")
         
-        # Selector de tema
+        # Primero el logo en el sidebar
+        st.sidebar.image(self.slider_img_path, use_container_width=True)
+        
+        # Luego el selector de tema
         theme = st.sidebar.radio(
             "Tema",
             ["Claro", "Oscuro"]
@@ -104,46 +109,9 @@ class ChatInterface:
             header_bg_color = "#ECE8EF"
             text_color = "#000000"
         
-        # Aplicar los colores
-        st.markdown(f"""
-            <style>
-                /* Color de fondo principal */
-                [data-testid="stAppViewContainer"] {{
-                    background-color: {main_bg_color};
-                }}
-                
-                /* Color de la barra lateral */
-                [data-testid="stSidebar"] {{
-                    background-color: {sidebar_bg_color};
-                }}
-                
-                /* Color del header */
-                [data-testid="stHeader"] {{
-                    background-color: {header_bg_color};
-                }}
-                
-                /* Color del texto */
-                .stMarkdown, .stText, p, h1, h2, h3 {{
-                    color: {text_color} !important;
-                }}
-                
-                /* Color de los botones */
-                .stButton button {{
-                    background-color: {sidebar_bg_color};
-                    color: {text_color};
-                }}
-                
-                /* Color de los inputs */
-                .stTextInput input {{
-                    color: {text_color};
-                }}
-                
-                /* Color de los selectbox */
-                .stSelectbox select {{
-                    color: {text_color};
-                }}
-            </style>
-        """, unsafe_allow_html=True)
+        # Aplicar estilos desde el módulo styles
+        apply_theme_styles(theme, main_bg_color, sidebar_bg_color, header_bg_color, text_color)
+        apply_white_text_input()
         
         # Añadir selector de plataforma
         platform = st.sidebar.selectbox(
@@ -156,15 +124,6 @@ class ChatInterface:
             "Escribe el tema seleccionado",
             key="tema_input",
         )
-        
-        # Estilo para hacer el texto blanco en el input
-        st.markdown("""
-            <style>
-                [data-testid="stTextInput"] input {
-                    color: white !important;
-                }
-            </style>
-        """, unsafe_allow_html=True)
         
         self.initialize_session_state()
         
